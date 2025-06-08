@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container content-container animate__animated animate__fadeIn">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6" data-aos="zoom-in">
+            <div class="card task-card border-danger">
+                <div class="card-header text-center" style="
+                    background: linear-gradient(135deg, #dc3545 0%, #FF10F0 100%);
+                    color: white;
+                    border-radius: 16px 16px 0 0 !important;
+                ">
+                    <h2 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirm Deletion
+                    </h2>
+                </div>
+                <div class="card-body text-center" style="background: var(--neon-card);">
+                    <div class="alert alert-warning d-flex align-items-center mb-4" style="
+                        background: rgba(255, 193, 7, 0.2);
+                        border-left: 4px solid #ffc107;
+                    ">
+                        <i class="fas fa-exclamation-circle fs-4 me-3" style="color: #ffc107;"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Warning: This action cannot be undone!</h5>
+                            <p class="mb-0">You're about to permanently delete: <strong>"{{ task.title }}"</strong></p>
+                        </div>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn cosmic-btn btn-lg" style="
+                                background: linear-gradient(135deg, #dc3545 0%, #FF10F0 100%);
+                                box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+                            ">
+                                <i class="fas fa-trash-alt me-2"></i>Yes, Delete Permanently
+                            </button>
+                            
+                            <a href="{% url 'tasks:task_list' %}" class="btn cosmic-btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i>No, Go Back to Safety
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center text-muted" style="
+                    background: var(--neon-card);
+                    border-radius: 0 0 16px 16px !important;
+                ">
+                    <small><i class="fas fa-shield-alt me-1"></i> Task ID: {{ task.id }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom delete page styles */
+    .task-card {
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .task-card:hover {
+        box-shadow: 0 10px 30px rgba(220, 53, 69, 0.3);
+    }
+    
+    .cosmic-btn {
+        border-radius: 12px !important;
+        padding: 0.75rem !important;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: none;
+    }
+    
+    .btn-outline-secondary.cosmic-btn {
+        border: 2px solid var(--neon-primary);
+        color: var(--neon-primary);
+        background: transparent;
+    }
+    
+    .btn-outline-secondary.cosmic-btn:hover {
+        background: var(--neon-primary);
+        color: var(--neon-light);
+    }
+</style>
+{% endblock %}

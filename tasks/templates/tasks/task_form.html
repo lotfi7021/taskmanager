@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container content-container animate__animated animate__fadeIn">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6" data-aos="fade-up" data-aos-duration="800">
+            <div class="task-card shadow-lg">
+                <div class="card-header" style="
+                    background: var(--cosmic-gradient);
+                    border-radius: 16px 16px 0 0 !important;
+                ">
+                    <h2 class="text-center mb-0 text-white">
+                        <i class="fas fa-{% if form.instance.pk %}edit{% else %}plus-circle{% endif %} me-2"></i>
+                        {% if form.instance.pk %}Edit Task{% else %}Create New Task{% endif %}
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Title Field -->
+                        <div class="mb-4">
+                            <label for="id_title" class="form-label fw-bold d-flex align-items-center">
+                                <i class="fas fa-heading me-2" style="color: var(--neon-primary);"></i>
+                                Title
+                            </label>
+                            <input type="text" name="title" class="form-control form-control-lg cosmic-input" 
+                                   id="id_title" value="{{ form.title.value|default:'' }}" required
+                                   placeholder="Enter task title">
+                            <div class="invalid-feedback cosmic-feedback">
+                                <i class="fas fa-exclamation-circle me-1"></i> Please provide a title
+                            </div>
+                        </div>
+
+                        <!-- Description Field -->
+                        <div class="mb-4">
+                            <label for="id_description" class="form-label fw-bold d-flex align-items-center">
+                                <i class="fas fa-align-left me-2" style="color: var(--neon-secondary);"></i>
+                                Description
+                            </label>
+                            <textarea name="description" class="form-control cosmic-input" id="id_description" 
+                                      rows="4" placeholder="Describe your task...">{{ form.description.value|default:'' }}</textarea>
+                        </div>
+
+                        <!-- Date and Priority Row -->
+                        <div class="row mb-4 g-3">
+                            <!-- Due Date -->
+                            <div class="col-md-6">
+                                <label for="id_due_date" class="form-label fw-bold d-flex align-items-center">
+                                    <i class="fas fa-calendar me-2" style="color: var(--neon-accent);"></i>
+                                    Due Date
+                                </label>
+                                <div class="input-group cosmic-date-input">
+                                    <input type="date" name="due_date" class="form-control cosmic-input" 
+                                           id="id_due_date" value="{{ form.due_date.value|date:'Y-m-d'|default:'' }}">
+                                </div>
+                            </div>
+                            
+                            <!-- Priority -->
+                            <div class="col-md-6">
+                                <label for="id_priority" class="form-label fw-bold d-flex align-items-center">
+                                    <i class="fas fa-bolt me-2" style="color: #FFD700;"></i>
+                                    Priority
+                                </label>
+                                <select name="priority" class="form-select cosmic-input" id="id_priority">
+                                    {% for value, label in form.fields.priority.choices %}
+                                        <option value="{{ value }}" {% if form.priority.value == value %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-grid gap-3 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg cosmic-btn">
+                                <i class="fas fa-save me-2"></i>Save Task
+                            </button>
+                            <a href="{% url 'tasks:task_list' %}" class="btn btn-outline-secondary cosmic-btn">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 🌌 Cosmic Form Styling */
+    .cosmic-input {
+        background: var(--neon-card);
+        border: 1px solid rgba(138, 43, 226, 0.3);
+        color: var(--neon-text);
+        transition: all 0.3s ease;
+        padding: 0.75rem 1rem;
+        border-radius: 12px !important;
+    }
+
+    .cosmic-input:focus {
+        background: var(--neon-card);
+        border-color: var(--neon-primary);
+        box-shadow: var(--neon-glow);
+        color: var(--neon-text);
+    }
+
+    .cosmic-date-input input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(0.8);
+        cursor: pointer;
+        padding-left: 0.5rem;
+    }
+
+    .cosmic-btn {
+        border-radius: 12px !important;
+        padding: 0.75rem !important;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .btn-primary.cosmic-btn {
+        background: var(--cosmic-gradient);
+        border: none;
+        box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);
+    }
+
+    .btn-primary.cosmic-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(138, 43, 226, 0.6);
+    }
+
+    .btn-outline-secondary.cosmic-btn {
+        border-color: var(--neon-primary);
+        color: var(--neon-primary);
+    }
+
+    .btn-outline-secondary.cosmic-btn:hover {
+        background: var(--neon-primary);
+        color: var(--neon-light);
+    }
+
+    .cosmic-feedback {
+        color: #ff6b6b;
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Form Validation Styling */
+    .was-validated .cosmic-input:invalid {
+        border-color: #ff6b6b;
+        background-image: none;
+    }
+
+    .was-validated .cosmic-input:valid {
+        border-color: #51cf66;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .content-container {
+            padding-top: 1.5rem;
+            padding-bottom: 2rem;
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<script>
+    // Enhanced Form Validation with Cosmic Feedback
+    (function () {
+        'use strict'
+        const forms = document.querySelectorAll('.needs-validation')
+        
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    
+                    // Add cosmic shake animation to invalid fields
+                    const invalidFields = form.querySelectorAll(':invalid')
+                    invalidFields.forEach(field => {
+                        field.classList.add('animate__animated', 'animate__headShake')
+                        setTimeout(() => {
+                            field.classList.remove('animate__animated', 'animate__headShake')
+                        }, 1000)
+                    })
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+
+        // Add real-time validation
+        document.querySelectorAll('.cosmic-input').forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.checkValidity()) {
+                    this.classList.remove('is-invalid')
+                    this.classList.add('is-valid')
+                } else {
+                    this.classList.remove('is-valid')
+                    this.classList.add('is-invalid')
+                }
+            })
+        })
+
+        // Initialize date picker with cosmic theme
+        const dateInput = document.getElementById('id_due_date')
+        if (dateInput) {
+            if (!dateInput.value) {
+                // Set default date to tomorrow
+                const tomorrow = new Date()
+                tomorrow.setDate(tomorrow.getDate() + 1)
+                dateInput.valueAsDate = tomorrow
+            }
+            
+            // Add date validation
+            dateInput.addEventListener('change', function() {
+                const selectedDate = new Date(this.value)
+                const today = new Date()
+                today.setHours(0,0,0,0)
+                
+                if (selectedDate < today) {
+                    this.setCustomValidity('Please select a future date')
+                } else {
+                    this.setCustomValidity('')
+                }
+            })
+        }
+    })()
+</script>
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <!-- Dashboard Stats Cards - Version améliorée -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <i class="bi bi-list-task fs-3 me-2 text-primary"></i>
+                        <h5 class="card-title mb-0 text-muted">Total Tasks</h5>
+                    </div>
+                    <p class="display-5 fw-bold text-primary">{{ stats.total|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <i class="bi bi-check-circle fs-3 me-2 text-success"></i>
+                        <h5 class="card-title mb-0 text-muted">Completed</h5>
+                    </div>
+                    <p class="display-5 fw-bold text-success">{{ stats.completed|default:"0" }}</p>
+                    <small class="text-muted">{{ stats.completed|default:"0" }}/{{ stats.total|default:"0" }} ({{ stats.completion_rate|default:"0" }}%)</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <i class="bi bi-exclamation-triangle fs-3 me-2 text-danger"></i>
+                        <h5 class="card-title mb-0 text-muted">Overdue</h5>
+                    </div>
+                    <p class="display-5 fw-bold text-danger">{{ stats.overdue|default:"0" }}</p>
+                    <small class="text-muted">
+                        {% if stats.overdue > 0 %}
+                        <i class="bi bi-clock-history"></i> Action requise
+                        {% else %}
+                        À jour
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <i class="bi bi-calendar-day fs-3 me-2 text-info"></i>
+                        <h5 class="card-title mb-0 text-muted">Today</h5>
+                    </div>
+                    <p class="display-5 fw-bold text-info">{{ stats.today|default:"0" }}</p>
+                    <small class="text-muted">À faire aujourd'hui</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task List Header - Version améliorée -->
+    <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded">
+        <div>
+            <h1 class="mb-0"><i class="bi bi-check2-square me-2"></i>Mes tâches</h1>
+            <small class="text-muted">Gérez vos tâches efficacement</small>
+        </div>
+        <a href="{% url 'tasks:create_task' %}" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-circle me-2"></i>Nouvelle tâche
+        </a>
+    </div>
+
+    <!-- Task List - Version améliorée -->
+    <div class="row g-4">
+        {% for task in tasks %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card task-card h-100 {% if task.completed %}border-success{% elif task.overdue %}border-danger{% else %}border-primary{% endif %}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="badge bg-{% if task.priority == 'H' %}danger{% elif task.priority == 'M' %}warning{% else %}success{% endif %}">
+                        {{ task.get_priority_display }}
+                    </span>
+                    <form action="{% url 'tasks:toggle_complete' task.id %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm {% if task.completed %}btn-success{% else %}btn-outline-secondary{% endif %}">
+                            {% if task.completed %}
+                            <i class="bi bi-check-circle-fill"></i> Terminée
+                            {% else %}
+                            <i class="bi bi-circle"></i> En cours
+                            {% endif %}
+                        </button>
+                    </form>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title {% if task.completed %}text-decoration-line-through text-muted{% endif %}">
+                        {{ task.title }}
+                    </h5>
+                    <p class="card-text {% if task.completed %}text-muted{% endif %}">
+                        {{ task.description|truncatechars:120|default:"Aucune description" }}
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="{% if task.overdue and not task.completed %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                            <i class="bi bi-calendar-event me-1"></i>
+                            {% if task.due_date %}
+                                {{ task.due_date|date:"d/m/Y" }}
+                                {% if not task.completed %}
+                                    <span class="ms-1">({{ task.due_date|timeuntil }})</span>
+                                {% endif %}
+                            {% else %}
+                                Pas de date limite
+                            {% endif %}
+                        </small>
+                        <div class="btn-group">
+                            <a href="{% url 'tasks:update_task' task.id %}" class="btn btn-sm btn-outline-primary" title="Modifier">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'tasks:delete_task' task.id %}" class="btn btn-sm btn-outline-danger" title="Supprimer">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info d-flex align-items-center">
+                <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                <div>
+                    <h5 class="alert-heading">Aucune tâche trouvée</h5>
+                    <p class="mb-0">Commencez par <a href="{% url 'tasks:create_task' %}" class="alert-link">créer votre première tâche</a></p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .stat-card:nth-child(1) { border-left-color: #0d6efd; }
+    .stat-card:nth-child(2) { border-left-color: #198754; }
+    .stat-card:nth-child(3) { border-left-color: #dc3545; }
+    .stat-card:nth-child(4) { border-left-color: #0dcaf0; }
+    
+    .task-card {
+        transition: all 0.2s ease;
+    }
+    .task-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .display-5 {
+        font-size: 2rem;
+    }
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.35em 0.65em;
+    }
+</style>
+{% endblock %}
+
+
